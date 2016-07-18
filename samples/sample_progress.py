@@ -129,7 +129,6 @@ def threaded_spinner_demo():
     p.write('Threaded spinner stopped')
     p.write('')
 
-
     s = ThreadedSpinner(p, refresh_seconds=3)
 
     p.write('Starting threaded spinner reuse test')

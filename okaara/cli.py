@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License along with Okaara.
 # If not, see <http://www.gnu.org/licenses/>.
 
+from functools import reduce
 import gettext
 from optparse import OptionParser, Values, BadOptionError
 import os
@@ -93,7 +94,7 @@ class NoCatchErrorParser(OptionParser):
 
         try:
             self._process_args(largs, rargs, values)
-        except BadOptionError, e:
+        except BadOptionError as e:
             # Raise with the data, not a string version of the exception
             raise CommandUsage(unexpected_options=[e.opt_str])
 
@@ -214,7 +215,7 @@ class Command(object):
             return os.EX_DATAERR
 
         # Make sure all of the required arguments have been specified
-        missing_required = [o for o in self.all_options() \
+        missing_required = [o for o in self.all_options()
                             if o.required and (not kwarg_dict.has_key(o.name) or
                                                kwarg_dict[o.name] is None)]
         if len(missing_required) > 0:
@@ -430,7 +431,7 @@ class Command(object):
                 value = options.__dict__[vo.name]
                 if value is not None:
                     vo.validate_func(value)
-            except (ValueError, TypeError), e:
+            except (ValueError, TypeError) as e:
                 # Only catch the expected validation error types; bubble up others
                 self.print_validation_error(prompt, vo, e)
                 raise OptionValidationFailed()
@@ -446,7 +447,7 @@ class Command(object):
                 if old_value is not None:
                     new_value = po.parse_func(old_value)
                     options.__dict__[po.name] = new_value
-            except (ValueError, TypeError), e:
+            except (ValueError, TypeError) as e:
                 # Only catch the expected validation error types; bubble up others
                 self.print_validation_error(prompt, po, e)
                 raise OptionValidationFailed()
@@ -887,7 +888,7 @@ class Cli(object):
         command = Command(name, description, method, usage_description=usage_description, parser=parser)
         self.add_command(command)
         return command
-    
+
     def find_section(self, name):
         """
         Returns the subsection of this section with the given name.
@@ -978,7 +979,7 @@ class Cli(object):
                     exit_code = os.EX_OK
 
                 return exit_code
-            except CommandUsage, e:
+            except CommandUsage as e:
                 command_or_section.print_command_usage(
                     self.prompt, missing_required=e.missing_options,
                     unexpected=e.unexpected_options)
@@ -1130,6 +1131,7 @@ class UnknownArgsParser(object):
     """
 
     class Unparsable(Exception): pass
+
     class MissingRequired(Exception): pass
 
     def __init__(self, prompt, path, required_options=None, exit_on_abort=True):
@@ -1244,7 +1246,7 @@ class UnknownArgsParser(object):
         self.prompt.write(_('Usage: %s %s [OPTION, ..]') % (launch_script, self.path))
         self.prompt.write('')
 
-        m  = _('Valid options follow one of the following formats:')
+        m=_('Valid options follow one of the following formats:')
         self.prompt.write(m)
 
         self.prompt.write(_('  --<option> <value>'))

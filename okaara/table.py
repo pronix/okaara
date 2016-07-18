@@ -14,6 +14,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 import copy
+from functools import reduce
 
 # -- constants ----------------------------------------------------------------
 
@@ -231,7 +232,7 @@ class Table(object):
         # If not specified, evenly divide across the table width and throw
         # out any extra space
         if col_widths is None:
-            minus_separators = table_width - ( (self.num_cols - 1) * len(self.col_separator) )
+            minus_separators = table_width - ((self.num_cols - 1) * len(self.col_separator))
             each_col_width = minus_separators / self.num_cols
             col_widths = [each_col_width for i in range(0, self.num_cols)]
 

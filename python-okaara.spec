@@ -1,11 +1,13 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+%{!?python3_sitelib: %global python3_sitelib %(%{__python3} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
+%global sum Python command line utilities
 
 # -- headers ------------------------------------------------------------------
 
 Name:           python-okaara
 Version:        1.0.35
 Release:        1%{?dist}
-Summary:        Python command line utilities
+Summary:        %{sum}
 
 Group:          Development/Tools
 License:        GPLv2
@@ -19,11 +21,26 @@ BuildRequires:  python-setuptools
 BuildRequires:  python-babel
 BuildRequires:  python2-devel
 BuildRequires:  python-mock
+BuildRequires:  python3-nose
+BuildRequires:  python3-setuptools
+BuildRequires:  python3-babel
+BuildRequires:  python3-devel
+BuildRequires:  python3-mock
 
-Requires:       python-setuptools
 
 %description
 Python library to facilitate the creation of command-line interfaces.
+
+%package -n python2-okaara
+Summary: %{sum}
+Requires:       python-setuptools
+%description -n python2-okaara
+
+%package -n python3-okaara
+Summary: %{sum}
+Requires:       python3-setuptools
+%description -n python3-okaara
+
 
 %prep
 %setup -q
@@ -31,14 +48,15 @@ Python library to facilitate the creation of command-line interfaces.
 # -- build --------------------------------------------------------------------
 
 %build
-%{__python} setup.py build
+%py2_build
+%py3_build
 
 mkdir -p po/build
 for lang in `ls po/*.po` ; do
     echo $lang;
     lang=`basename $lang .po`;
     mkdir -p po/build/$lang/LC_MESSAGES/;
-    %{__python} setup.py compile_catalog -i po/$lang.po \
+    %{__python3} setup.py compile_catalog -i po/$lang.po \
         -o po/build/$lang/LC_MESSAGES/okaara.mo;
 done
 
@@ -48,8 +66,10 @@ done
 rm -rf $RPM_BUILD_ROOT
 
 # Python setup
-%{__python} setup.py install -O1 --skip-build --root %{buildroot}
-rm -f $RPM_BUILD_ROOT%{python_sitelib}/rhui*egg-info/requires.txt
+%{__python3} setup.py install -O1 --skip-build --root %{buildroot}
+%{__python2} setup.py install -O1 --skip-build --root %{buildroot}
+rm -f $RPM_BUILD_ROOT%{python2_sitelib}/rhui*egg-info/requires.txt
+rm -f $RPM_BUILD_ROOT%{python3_sitelib}/rhui*egg-info/requires.txt
 
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}/locale/
 cp -R po/build/* $RPM_BUILD_ROOT/%{_datadir}/locale/
@@ -67,9 +87,14 @@ rm -rf $RPM_BUILD_ROOT
 
 # -- files --------------------------------------------------------------------
 
-%files -f okaara.lang
-%{python_sitelib}/okaara/
-%{python_sitelib}/okaara*.egg-info
+%files -f okaara.lang -n python2-okaara
+%{python2_sitelib}/okaara/
+%{python2_sitelib}/okaara*.egg-info
+
+%files -f okaara.lang -n python3-okaara
+%{python3_sitelib}/okaara/
+%{python3_sitelib}/okaara*.egg-info
+
 %doc LICENSE
 
 # -- changelog ----------------------------------------------------------------

@@ -15,6 +15,7 @@
 
 import copy
 import fcntl
+from functools import reduce
 import getpass
 import gettext
 import logging
@@ -147,7 +148,7 @@ class Prompt:
         try:
             r = self.input.readline().rstrip() # rstrip removes the trailing \n
             return r
-        except (EOFError, KeyboardInterrupt), e:
+        except (EOFError, KeyboardInterrupt) as e:
             if interruptable:
                 self.write('') # the ^C won't cause a line break but we probably want one
                 return ABORT
@@ -230,7 +231,7 @@ class Prompt:
         if len(text) >= width:
             return text
         else:
-            spacer = ' ' * ( (width - len(text)) / 2)
+            spacer = ' ' * ((width - len(text)) / 2)
             return spacer + text
 
     def wrap(self, content, wrap_width=None, remaining_line_indent=0):
@@ -431,7 +432,7 @@ class Prompt:
 
         if a is ABORT:
             return a
-            
+
         return a.lower() == 'y'
 
     def prompt_range(self, question, high_number, low_number=1, interruptable=True):
@@ -445,7 +446,7 @@ class Prompt:
             if a > high_number or a < low_number:
                 self.write(_('Please enter a number between %d and %d') % (low_number, high_number))
                 continue
-                
+
             return a
 
     def prompt_number(self, question, allow_negatives=False, allow_zero=False, default_value=None, interruptable=True):
@@ -874,8 +875,8 @@ class Prompt:
         upper = parsed[1].strip()
 
         return lower.isdigit() and int(lower) > 0 and \
-               upper.isdigit() and int(upper) <= selectable_item_count and \
-               int(lower) < int(upper)
+            upper.isdigit() and int(upper) <= selectable_item_count and \
+            int(lower) < int(upper)
 
     def _range(self, input):
         """

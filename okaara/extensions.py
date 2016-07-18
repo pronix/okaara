@@ -28,6 +28,9 @@ PRIORITY_VAR = 'PRIORITY'
 DEFAULT_PRIORITY = 5
 
 # -- client functionality -----------------------------------------------------
+def cmp(a, b):
+    """python3 drop this function"""
+    return (a > b) - (a < b)
 
 def priority(value=DEFAULT_PRIORITY):
     """
@@ -148,23 +151,24 @@ class DirectoryExtensionsLoader(BaseExtensionsLoader):
     def _load_extension_descriptor(self, extension_package_name):
 
         # Check for the file's existence first to ease error handling
-        ext_mod_filename = os.path.join(self.extensions_dir, extension_package_name,
-                                         self.init_module_name + '.py')
+        ext_mod_filename = os.path.join(self.extensions_dir,
+                                        extension_package_name,
+                                        self.init_module_name + '.py')
         if not os.path.exists(ext_mod_filename):
-            raise InitializeFileNotFound(ext_mod_filename)
+            raise(InitializeFileNotFound(ext_mod_filename))
 
         # Figure out the full package name for the module and import it.
         try:
             ext_module = __import__('%s.%s' % (extension_package_name, self.init_module_name))
         except Exception:
-            raise ImportFailed(extension_package_name), None, sys.exc_info()[2]
+            raise(ImportFailed(extension_package_name), None, sys.exc_info()[2])
 
         # Get a handle on the initialize function
         try:
             init_module = getattr(ext_module, self.init_module_name)
             init_func = getattr(init_module, self.init_function_name)
-        except AttributeError, e:
-            raise NoInitFunction(), None, sys.exc_info()[2]
+        except AttributeError as e:
+            raise(NoInitFunction(), None, sys.exc_info()[2])
 
         # Load the priority
         try:
@@ -196,7 +200,7 @@ class EntryPointLoader(BaseExtensionsLoader):
 # -- exceptions ---------------------------------------------------------------
 
 class ExtensionLoaderException(Exception):
-    """ Base class for all loading-related exceptions. """
+    """Base class for all loading-related exceptions."""
     pass
 
 
